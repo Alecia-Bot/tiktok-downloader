@@ -3,9 +3,6 @@ const mp3Btn = document.getElementById('download-mp3');
 const linkInput = document.getElementById('tiktok-link');
 const resultDiv = document.getElementById('result');
 
-// Example API endpoint for TikTok download (replace with actual working API)
-const API_BASE = 'https://api.tiktokdownloaderapi.com/api'; // Placeholder, needs real API
-
 // Helper function to clear result
 function clearResult() {
     resultDiv.innerHTML = '';
@@ -20,28 +17,30 @@ function showError(message) {
     resultDiv.appendChild(errorElem);
 }
 
-// Fetch download link from third-party API
 async function fetchDownloadLink(tiktokUrl, type) {
     // type: 'video' or 'audio'
     try {
-        // For demonstration, using a mock API call structure
-        // You need to replace this with a real API call to a service like savefrom.net or snaptik
-        const response = await fetch(`https://api.tikmate.app/api/lookup?url=${encodeURIComponent(tiktokUrl)}`);
+        // Using TikWM API for TikTok download
+        // API endpoint: https://www.tikwm.com/api?url=...
+        const response = await fetch(`https://www.tikwm.com/api?url=${encodeURIComponent(tiktokUrl)}`);
         if (!response.ok) {
             throw new Error('Gagal mengambil data dari API');
         }
         const data = await response.json();
 
-        if (!data || !data.video || !data.video.no_watermark) {
-            throw new Error('Link video tidak valid atau tidak ditemukan');
+        if (!data || !data.data) {
+            throw new Error('Data dari API tidak valid');
         }
 
         if (type === 'video') {
-            return data.video.no_watermark;
+            if (data.data.play) {
+                return data.data.play;
+            } else {
+                throw new Error('Link video tidak ditemukan');
+            }
         } else if (type === 'audio') {
-            // Some APIs provide audio link separately, here we simulate extracting audio link
-            if (data.music && data.music.play_url) {
-                return data.music.play_url;
+            if (data.data.music && data.data.music.play_url) {
+                return data.data.music.play_url;
             } else {
                 throw new Error('Link audio tidak ditemukan');
             }
